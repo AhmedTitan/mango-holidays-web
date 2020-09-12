@@ -19,3 +19,23 @@ export const getRoomsByProperty = async (id) => {
     return Promise.reject(error.response.data);
   }
 };
+
+
+export const login = async (values) => {
+  try {
+    const result = await axios.post(`${baseUrl}auth/login`, values);
+    return Promise.resolve(result.data.data);
+  } catch (error) {
+    return Promise.reject(error.response.data);
+  }
+};
+
+export const signup = async (values) => {
+  try {
+    const result = await axios.post(`${baseUrl}auth/register`, values);
+    return Promise.resolve(result.data.data);
+  } catch (error) {
+    return Promise.reject(error.response.data);
+  }
+};
+

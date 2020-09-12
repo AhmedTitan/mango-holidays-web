@@ -5,6 +5,8 @@ import { Switch, Redirect } from "react-router-dom";
 import { RouteWithLayout } from "./components/RouteWithLayout";
 import { Main } from "./layouts/Main";
 import { PropertyPage } from "./modules/PropertyList/views/PropertyPage";
+import Signinform from "./modules/Authentication/SigninForm";
+import Signupform from "./modules/Authentication/SignupForm";
 
 const Routes = () => {
   return (
@@ -14,6 +16,16 @@ const Routes = () => {
         component={Home}
         layout={Main}
         path="/home"
+      />
+      <RouteWithLayout
+        component={Signinform}
+        layout={Main}
+        path="/signin"
+      />
+      <RouteWithLayout
+        component={Signupform}
+        layout={Main}
+        path="/signup"
       />
       <RouteWithLayout
         component={PropertyPage}
