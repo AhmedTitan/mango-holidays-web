@@ -4,6 +4,7 @@ import { Switch, Redirect } from "react-router-dom";
 
 import { RouteWithLayout } from "./components/RouteWithLayout";
 import { Main } from "./layouts/Main";
+import { PropertyPage } from "./modules/PropertyList/views/PropertyPage";
 
 const Routes = () => {
   return (
@@ -13,6 +14,11 @@ const Routes = () => {
         component={Home}
         layout={Main}
         path="/home"
+      />
+      <RouteWithLayout
+        component={PropertyPage}
+        layout={Main}
+        path="/property/:propertyId"
       />
       <Redirect to="/not-found" />
     </Switch>

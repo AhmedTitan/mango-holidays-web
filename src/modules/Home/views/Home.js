@@ -30,7 +30,7 @@ export function Home() {
           <Row>
             {properties &&
               properties.map((property) => (
-                <Col span={8}>
+                <Col span={8} key={property.id}>
                   <Propertycard property={property} />
                 </Col>
               ))}
