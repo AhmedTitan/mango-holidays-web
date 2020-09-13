@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import { Card, Col, Row } from "antd";
 import { useHistory } from "react-router-dom";
 
-export function Roomcard({ room }) {
+export function Roomcard({ room, setselectedRoom }) {
   return (
     <>
       <Col span={8}>
@@ -10,6 +10,7 @@ export function Roomcard({ room }) {
           headStyle={{ backgroundColor: "#404a46", color: "white" }}
           title={room.roomName}
           bordered={false}
+          onClick={() => setselectedRoom(room)}
         >
           <h3>Number of Guests: {room.numberOfGuests}</h3>
           <h3>Amenities: {room.amenities}</h3>

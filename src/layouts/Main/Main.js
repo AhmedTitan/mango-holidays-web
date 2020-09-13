@@ -24,7 +24,7 @@ const Main = (props) => {
   };
 
   return (
-    <Layout style={{ height: "100%" }}>
+    <Layout style={{ height: "120%" }}>
       <Header
         className="site-layout-sub-header-background"
         style={{ padding: 0, backgroundColor: "#630059" }}
