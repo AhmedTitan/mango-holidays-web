@@ -1,0 +1,21 @@
+Server setup
+--------------------------------------
+Backend: reactjs
+
+>> Run 'npm i' to install the packages
+>> 'npm start' to start a development environment
+
+
+Completed functionalities
+--------------------------------------
+>> user signup and signin
+>> Handling Authorization token
+>> Signin validation for reservation.
+>> All the contents are dynamic
+
+
+Pending functionalities
+--------------------------------------
+>> Payment card detials are not validated
+>> normal text fields are used for the password.
+>> Room availability checking functionality is not imlepented.
