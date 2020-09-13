@@ -11,6 +11,7 @@ export function Roomcard({ room, setselectedRoom }) {
           title={room.roomName}
           bordered={false}
           onClick={() => setselectedRoom(room)}
+          hoverable
         >
           <h3>Number of Guests: {room.numberOfGuests}</h3>
           <h3>Amenities: {room.amenities}</h3>

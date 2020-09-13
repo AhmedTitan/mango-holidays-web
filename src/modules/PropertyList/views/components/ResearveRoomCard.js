@@ -1,8 +1,8 @@
 import React, { Component, useState } from "react";
 import moment from "moment";
 
-import { Form, Input, TimePicker, Button } from "antd";
-import { Row, Col, Card, Radio, DatePicker, Space, Checkbox } from "antd";
+import { Form, Input, TimePicker, Button, Modal } from "antd";
+import { Row, Col, Card, Radio, DatePicker, Checkbox } from "antd";
 import { createReservation } from "./../../../service";
 
 const { RangePicker } = DatePicker;
@@ -39,6 +39,9 @@ export function Researveroomcard({ selectedRoom }) {
   const [year, setYear] = useState();
   const [cvc, setCvc] = useState();
   const [totalAmount, settotalAmount] = useState(22);
+  const [visible, setVisible] = useState();
+
+  const [form] = Form.useForm();
 
   const handleDateChange = (e) => {
     setStartDate(moment(e[0]).format("YYYY-MM-DD"));
@@ -65,13 +68,15 @@ export function Researveroomcard({ selectedRoom }) {
           month: month,
           year: year,
           cvc: cvc,
-          totalAmount
+          totalAmount,
         },
       };
       try {
         console.log(payload);
         const responseMessage = await createReservation(payload, token);
         alert(responseMessage);
+        form.resetFields();
+        clearFelds();
       } catch (error) {
         alert(error);
       }
@@ -80,6 +85,18 @@ export function Researveroomcard({ selectedRoom }) {
     }
     try {
     } catch (error) {}
+  };
+
+  const clearFelds = () => {
+    setStartDate(null);
+    setEndDate(null);
+    setParkingSlot(false);
+    setspecialNote(null);
+    setCardName(null);
+    setCardNumber(null);
+    setMonth(null);
+    setYear(null);
+    setCvc(null);
   };
 
   const handlePricingOption = (e) => {
@@ -101,11 +118,30 @@ export function Researveroomcard({ selectedRoom }) {
     setPricingOption(e.target.value);
   };
 
+  const showModal = () => {
+    const token = localStorage.getItem("JWT");
+    if (token) {
+      setVisible(true);
+    } else {
+      alert("Please sign in before making a booking");
+    }
+  };
+
+  const handleOk = (e) => {
+    setVisible(false);
+    onFinish();
+  };
+
+  const handleCancel = (e) => {
+    setVisible(false);
+  };
+
   const reservationSection = (
     <Form
       {...layout}
+      form={form}
       name="nest-messages"
-      onFinish={onFinish}
+      onFinish={showModal}
       validateMessages={validateMessages}
       style={{
         maxWidth: "600px",
@@ -163,26 +199,50 @@ export function Researveroomcard({ selectedRoom }) {
       {paymentMethod == "online" && (
         <>
           <Form.Item rules={[{ required: true }]} label="Card Name">
-            <Input onChange={(e) => setCardName(e.target.value)} />
+            <Input
+              value={cardName}
+              onChange={(e) => setCardName(e.target.value)}
+            />
           </Form.Item>
           <Form.Item rules={[{ required: true }]} label="Card Number">
-            <Input onChange={(e) => setCardNumber(e.target.value)} />
+            <Input
+              value={cardNumber}
+              onChange={(e) => setCardNumber(e.target.value)}
+            />
           </Form.Item>
           <Form.Item rules={[{ required: true }]} label="Month">
-            <Input onChange={(e) => setMonth(e.target.value)} />
+            <Input value={month} onChange={(e) => setMonth(e.target.value)} />
           </Form.Item>
           <Form.Item rules={[{ required: true }]} label="Year">
-            <Input onChange={(e) => setYear(e.target.value)} />
+            <Input value={year} onChange={(e) => setYear(e.target.value)} />
           </Form.Item>
           <Form.Item rules={[{ required: true }]} label="CVC">
-            <Input onChange={(e) => setCvc(e.target.value)} />
+            <Input value={cvc} onChange={(e) => setCvc(e.target.value)} />
           </Form.Item>
         </>
       )}
       <Form.Item wrapperCol={{ ...layout.wrapperCol, offset: 8 }}>
-        <Button type="primary" htmlType="submit">
-          Submit
-        </Button>
+        <Row>
+          <Col span={12}>
+            <>
+              <Button type="primary" htmlType="submit">
+                Submit
+              </Button>
+              <Modal
+                title="Booking confirmation"
+                visible={visible}
+                onOk={handleOk}
+                onCancel={handleCancel}
+              >
+                <p>Total reservation amount is {totalAmount}. </p>
+                <p>Select ok to proceed. </p>
+              </Modal>
+            </>
+          </Col>
+          <Col span={12}>
+            <h3>Total amount: {totalAmount}</h3>
+          </Col>
+        </Row>
       </Form.Item>
     </Form>
   );
@@ -193,11 +253,8 @@ export function Researveroomcard({ selectedRoom }) {
       <br />
       <Row>
         <Col span={12}>
-          <Card
-            title="Default size card"
-            style={{ width: 300, margin: "auto" }}
-          >
-            <p>Room Name: {selectedRoom.roomName}</p>
+          <Card title="Discription" style={{ width: 300, margin: "auto" }}>
+            <p>Room Name: {<h2>{selectedRoom.roomName}</h2>}</p>
             <p>Number of guest: {selectedRoom.numberOfGuests}</p>
             <p>Amenities: {selectedRoom.amenities}</p>
             <h3>Pricing option</h3>
