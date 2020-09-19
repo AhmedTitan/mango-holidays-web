@@ -43,8 +43,10 @@ export function Researveroomcard({ selectedRoom }) {
   const [year, setYear] = useState();
   const [cvc, setCvc] = useState();
   const [totalAmount, settotalAmount] = useState(22);
+  const [pricingOptionAmount, setPricingOptionAmount] = useState(22);
   const [visible, setVisible] = useState();
   const [disabledDateArray, setDisabledDateArray] = useState([]);
+  const [numberOfBookingDays, setNumberOfBookingDays] = useState(1);
 
   const [form] = Form.useForm();
 
@@ -68,15 +70,22 @@ export function Researveroomcard({ selectedRoom }) {
         ...form.getFieldValue(),
         Date: null,
       });
+      setNumberOfBookingDays(1)
     } else {
       setStartDate(moment(e?.[0]).format("YYYY-MM-DD"));
       setEndDate(moment(e?.[1]).format("YYYY-MM-DD"));
+      setNumberOfBookingDays(allSelectedDates.length)
     }
   };
 
   useEffect(() => {
     fetchRoomDisableDates();
-  }, [selectedRoom.id]);
+    clearFelds();
+  }, [selectedRoom.id, ]);
+
+  useEffect(() => {
+    settotalAmount(parseFloat(pricingOptionAmount * numberOfBookingDays));
+  }, [pricingOptionAmount, numberOfBookingDays]);
 
   const fetchRoomDisableDates = async () => {
     setDisabledDateArray(await fetchRoomAvailability(selectedRoom.id));
@@ -128,7 +137,7 @@ export function Researveroomcard({ selectedRoom }) {
       paymentMethod: "online",
     });
     setPaymentMethod("online");
-    settotalAmount(selectedRoom.BB);
+    setPricingOptionAmount(selectedRoom.BB);
     setStartDate(null);
     setEndDate(null);
     setParkingSlot(false);
@@ -143,17 +152,17 @@ export function Researveroomcard({ selectedRoom }) {
   const handlePricingOption = (e) => {
     switch (e.target.value) {
       case "Half-Board":
-        settotalAmount(selectedRoom.HB);
+        setPricingOptionAmount(selectedRoom.HB);
         break;
       case "Full-Board":
-        settotalAmount(selectedRoom.FB);
+        setPricingOptionAmount(selectedRoom.FB);
         break;
       case "Bed & Breakfast":
-        settotalAmount(selectedRoom.BB);
+        setPricingOptionAmount(selectedRoom.BB);
         break;
 
       default:
-        settotalAmount(selectedRoom.BB);
+        setPricingOptionAmount(selectedRoom.BB);
         break;
     }
     setPricingOption(e.target.value);

@@ -29,7 +29,7 @@ const FormSubmit = ({
           </>
         </Col>
         <Col span={12}>
-          <h3>Total amount: {totalAmount}</h3>
+          <h3>Total amount: {parseFloat(totalAmount)}.00</h3>
         </Col>
       </Row>
     </Form.Item>
