@@ -1,7 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { useHistory } from "react-router-dom";
 import { Button, Radio } from "antd";
-import { UserOutlined, HomeOutlined } from "@ant-design/icons";
+import {
+  UserOutlined,
+  HomeOutlined,
+  OrderedListOutlined,
+} from "@ant-design/icons";
 import { Layout, Menu } from "antd";
 
 const { Header, Content, Footer, Sider } = Layout;
@@ -30,15 +34,15 @@ const Main = (props) => {
         style={{ padding: 0, backgroundColor: "#630059" }}
       >
         <Button
-            onClick={() => redirectPage(`/home`)}
-            type="primary"
-            shape="round"
-            icon={<HomeOutlined />}
-            size="medium"
-            danger
-          >
-            Home
-          </Button>
+          onClick={() => redirectPage(`/home`)}
+          type="primary"
+          shape="round"
+          icon={<HomeOutlined />}
+          size="medium"
+          danger
+        >
+          Home
+        </Button>
         {!toekn ? (
           <>
             <Button
@@ -61,15 +65,26 @@ const Main = (props) => {
             </Button>
           </>
         ) : (
-          <Button
-            onClick={handleLogOut}
-            type="primary"
-            shape="round"
-            icon={<UserOutlined />}
-            size="medium"
-          >
-            Log Out
-          </Button>
+          <>
+            <Button
+              onClick={() => redirectPage(`/mybookings`)}
+              type="primary"
+              shape="round"
+              icon={<OrderedListOutlined />}
+              size="medium"
+            >
+              My Bookings
+            </Button>
+            <Button
+              onClick={handleLogOut}
+              type="primary"
+              shape="round"
+              icon={<UserOutlined />}
+              size="medium"
+            >
+              Log Out
+            </Button>
+          </>
         )}
       </Header>
       <Content style={{ margin: "24px 16px 0" }}>
