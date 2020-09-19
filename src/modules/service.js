@@ -61,3 +61,29 @@ export const fetchRoomAvailability = async (roomId) => {
     return Promise.reject(error.response?.data || error.response);
   }
 };
+
+export const fetchMyBookings = async (token) => {
+  try {
+    const result = await axios.get(`${baseUrl}reservation/mybookings`, {
+      headers: {
+        Authorization: token,
+      },
+    });
+    return Promise.resolve(result.data.data);
+  } catch (error) {
+    return Promise.reject(error.response?.data || error.response);
+  }
+};
+
+export const cancelBooking = async (id, token) => {
+  try {
+    const result = await axios.get(`${baseUrl}reservation/cancel/${id}`, {
+      headers: {
+        Authorization: token,
+      },
+    });
+    return Promise.resolve(result.data.data);
+  } catch (error) {
+    return Promise.reject(error.response?.data || error.response);
+  }
+};
