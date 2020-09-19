@@ -1,11 +1,15 @@
-import React, { Component, useState } from "react";
+import React, { useState, useEffect } from "react";
 import moment from "moment";
 
-import { Form, Input, TimePicker, Button, Modal } from "antd";
-import { Row, Col, Card, Radio, DatePicker, Checkbox } from "antd";
-import { createReservation } from "./../../../service";
-
-const { RangePicker } = DatePicker;
+import { Row, Col, Card, Form } from "antd";
+import { createReservation, fetchRoomAvailability } from "./../../../service";
+import InputField from "../../../../components/common/InputField";
+import CommonRangePicker from "../../../../components/common/CommonRangePicker";
+import RadioGroup from "../../../../components/common/RadioGroup";
+import FormCheckBox from "../../../../components/common/FormCheckBox";
+import FormTimePicker from "../../../../components/common/FormTimePicker";
+import FormSubmit from "../../../../components/common/FormSubmit";
+import { getDatesBetween } from "../../../../components/functions/functions";
 
 const validateMessages = {
   required: "required!",
@@ -40,14 +44,43 @@ export function Researveroomcard({ selectedRoom }) {
   const [cvc, setCvc] = useState();
   const [totalAmount, settotalAmount] = useState(22);
   const [visible, setVisible] = useState();
+  const [disabledDateArray, setDisabledDateArray] = useState([]);
 
   const [form] = Form.useForm();
 
   const handleDateChange = (e) => {
-    setStartDate(moment(e[0]).format("YYYY-MM-DD"));
-    setEndDate(moment(e[1]).format("YYYY-MM-DD"));
+    const allSelectedDates = getDatesBetween(
+      moment(e?.[0]).format("YYYY-MM-DD"),
+      moment(e?.[1]).format("YYYY-MM-DD")
+    );
+    let invalidDate = false;
+    allSelectedDates.forEach((current) => {
+      !invalidDate &&
+        (invalidDate = disabledDateArray.some(
+          (date) =>
+            moment(date).format("YYYY-MM-DD") ===
+            moment(current).format("YYYY-MM-DD")
+        ));
+    });
+    if (invalidDate) {
+      alert("Selected Date range");
+      form.setFieldsValue({
+        ...form.getFieldValue(),
+        Date: null,
+      });
+    } else {
+      setStartDate(moment(e?.[0]).format("YYYY-MM-DD"));
+      setEndDate(moment(e?.[1]).format("YYYY-MM-DD"));
+    }
   };
 
+  useEffect(() => {
+    fetchRoomDisableDates();
+  }, [selectedRoom.id]);
+
+  const fetchRoomDisableDates = async () => {
+    setDisabledDateArray(await fetchRoomAvailability(selectedRoom.id));
+  };
   const onFinish = async (values) => {
     const token = localStorage.getItem("JWT");
     if (token) {
@@ -75,8 +108,8 @@ export function Researveroomcard({ selectedRoom }) {
         console.log(payload);
         const responseMessage = await createReservation(payload, token);
         alert(responseMessage);
-        form.resetFields();
         clearFelds();
+        fetchRoomDisableDates();
       } catch (error) {
         alert(error);
       }
@@ -88,6 +121,14 @@ export function Researveroomcard({ selectedRoom }) {
   };
 
   const clearFelds = () => {
+    form.resetFields();
+    form.setFieldsValue({
+      ...form.getFieldValue(),
+      pricingOption: "Bed & Breakfast",
+      paymentMethod: "online",
+    });
+    setPaymentMethod("online");
+    settotalAmount(selectedRoom.BB);
     setStartDate(null);
     setEndDate(null);
     setParkingSlot(false);
@@ -149,101 +190,101 @@ export function Researveroomcard({ selectedRoom }) {
         paddingRight: "100px",
       }}
     >
-      <Form.Item name={["Date"]} label="Name" rules={[{ required: true }]}>
-        <RangePicker onChange={handleDateChange} />
-      </Form.Item>
-      <Form.Item name={["pricingOption"]} label="Email">
-        <Radio.Group
-          defaultValue="Bed & Breakfast"
-          buttonStyle="solid"
-          onChange={handlePricingOption}
-        >
-          <Radio.Button
-            selected
-            value="Bed & Breakfast"
-          >{`Bed & Breakfast`}</Radio.Button>
-          <Radio.Button value="Half-Board">Half-Board</Radio.Button>
-          <Radio.Button value="Full-Board">Full-Board</Radio.Button>
-        </Radio.Group>
-      </Form.Item>
-      <Form.Item name={["parkingSlot"]} label="Parking slot needed">
-        <Checkbox onChange={(e) => setParkingSlot(e.target.checked)}></Checkbox>
-      </Form.Item>
-      <Form.Item
+      <CommonRangePicker
+        name={["Date"]}
+        label="Name"
+        rules={[{ required: true }]}
+        onChange={handleDateChange}
+        disabledDateArray={disabledDateArray}
+      />
+      <RadioGroup
+        name={["pricingOption"]}
+        label="Pricing Option"
+        defaultValue={"Bed & Breakfast"}
+        onChange={handlePricingOption}
+        fields={["Bed & Breakfast", "Half-Board", "Full-Board"]}
+      />
+      <FormCheckBox
+        name={["parkingSlot"]}
+        label="Parking slot needed"
+        onChange={(e) => setParkingSlot(e.target.checked)}
+      />
+      <InputField
         name={["specialNote"]}
+        rules={[{ required: true }]}
         label="Special Note"
         onChange={(e) => setspecialNote(e.target.value)}
-      >
-        <Input />
-      </Form.Item>
-      <Form.Item name={["checkInTime"]} label="Check-in time">
-        <TimePicker
-          onChange={(e) => setCheckInTime(moment(e).format("HH:mm"))}
-          defaultValue={moment("13:00", format)}
-          format={format}
-        />
-      </Form.Item>
-      <Form.Item name={["confirmPassword"]} label="Payment method">
-        <Radio.Group
-          onChange={(e) => setPaymentMethod(e.target.value)}
-          defaultValue="online"
-          buttonStyle="solid"
-        >
-          <Radio.Button selected value="online">
-            online
-          </Radio.Button>
-          <Radio.Button value="via credit card">via credit card</Radio.Button>
-          <Radio.Button value="cash payments">cash payments</Radio.Button>
-        </Radio.Group>
-      </Form.Item>
+      />
+      <FormTimePicker
+        name={["checkInTime"]}
+        label="Check-in time"
+        onChange={(e) => setCheckInTime(moment(e).format("HH:mm"))}
+        defaultValue={moment("13:00", format)}
+        format={format}
+      />
+      <RadioGroup
+        name={["paymentMethod"]}
+        label="Payment method"
+        rules={[{ required: true }]}
+        onChange={(e) => setPaymentMethod(e.target.value)}
+        defaultValue="online"
+        fields={["online", "via credit card", "cash payments"]}
+      />
       {paymentMethod == "online" && (
-        <>
-          <Form.Item rules={[{ required: true }]} label="Card Name">
-            <Input
-              value={cardName}
-              onChange={(e) => setCardName(e.target.value)}
-            />
-          </Form.Item>
-          <Form.Item rules={[{ required: true }]} label="Card Number">
-            <Input
-              value={cardNumber}
-              onChange={(e) => setCardNumber(e.target.value)}
-            />
-          </Form.Item>
-          <Form.Item rules={[{ required: true }]} label="Month">
-            <Input value={month} onChange={(e) => setMonth(e.target.value)} />
-          </Form.Item>
-          <Form.Item rules={[{ required: true }]} label="Year">
-            <Input value={year} onChange={(e) => setYear(e.target.value)} />
-          </Form.Item>
-          <Form.Item rules={[{ required: true }]} label="CVC">
-            <Input value={cvc} onChange={(e) => setCvc(e.target.value)} />
-          </Form.Item>
-        </>
+        <InputField
+          name={["cardName"]}
+          visible={paymentMethod == "online"}
+          label="Card Name"
+          onChange={(e) => setspecialNote(e.target.value)}
+          value={cardName}
+          onChange={(e) => setCardName(e.target.value)}
+        />
       )}
-      <Form.Item wrapperCol={{ ...layout.wrapperCol, offset: 8 }}>
-        <Row>
-          <Col span={12}>
-            <>
-              <Button type="primary" htmlType="submit">
-                Submit
-              </Button>
-              <Modal
-                title="Booking confirmation"
-                visible={visible}
-                onOk={handleOk}
-                onCancel={handleCancel}
-              >
-                <p>Total reservation amount is {totalAmount}. </p>
-                <p>Select ok to proceed. </p>
-              </Modal>
-            </>
-          </Col>
-          <Col span={12}>
-            <h3>Total amount: {totalAmount}</h3>
-          </Col>
-        </Row>
-      </Form.Item>
+      {paymentMethod == "online" && (
+        <InputField
+          name={["cardNumber"]}
+          rules={[{ required: true }]}
+          label="Card Number"
+          onChange={(e) => setspecialNote(e.target.value)}
+          value={cardNumber}
+          onChange={(e) => setCardNumber(e.target.value)}
+        />
+      )}
+      {paymentMethod == "online" && (
+        <InputField
+          name={["month"]}
+          rules={[{ required: true }]}
+          label="Month"
+          value={month}
+          onChange={(e) => setMonth(e.target.value)}
+        />
+      )}
+      {paymentMethod == "online" && (
+        <InputField
+          name={["year"]}
+          rules={[{ required: true }]}
+          label="Year"
+          value={year}
+          onChange={(e) => setYear(e.target.value)}
+        />
+      )}
+      {paymentMethod == "online" && (
+        <InputField
+          name={["cvc"]}
+          rules={[{ required: true }]}
+          label="CVC"
+          value={cvc}
+          onChange={(e) => setCvc(e.target.value)}
+        />
+      )}
+      <FormSubmit
+        wrapperCol={{ ...layout.wrapperCol, offset: 8 }}
+        title="Booking confirmation"
+        visible={visible}
+        onOk={handleOk}
+        onCancel={handleCancel}
+        totalAmount={totalAmount}
+      />
     </Form>
   );
 

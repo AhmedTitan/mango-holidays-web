@@ -50,3 +50,14 @@ export const createReservation = async (values, token) => {
     return Promise.reject(error.response?.data || error.response);
   }
 };
+
+export const fetchRoomAvailability = async (roomId) => {
+  try {
+    const result = await axios.get(
+      `${baseUrl}reservation/availability/${roomId}`
+    );
+    return Promise.resolve(result.data.data);
+  } catch (error) {
+    return Promise.reject(error.response?.data || error.response);
+  }
+};
