@@ -20,10 +20,11 @@ Completed functionalities
 >> Handling Authorization token
 >> Signin validation for reservation.
 >> All the contents are dynamic
+>> Room availability checking functionality is imlepented.
+>> Booking canelation functionality is implemented
 
 
 Pending functionalities
 --------------------------------------
 >> Payment card detials are not validated
 >> normal text fields are used for the password.
->> Room availability checking functionality is not imlepented.
